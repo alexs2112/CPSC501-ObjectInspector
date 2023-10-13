@@ -1,6 +1,7 @@
 package inspector;
 
 import java.util.ArrayList;
+import java.lang.reflect.*;
 
 public class Inspector {
     private boolean testing;
@@ -14,7 +15,8 @@ public class Inspector {
         output = new ArrayList<String>();
 
         Class declaringClass = getDeclaringClass(obj);
-        get_header(declaringClass);
+        getHeader(declaringClass);
+        getMethods(declaringClass);
 
         if (!testing) {
             for (String s : output) { System.out.println(s); }
@@ -33,7 +35,7 @@ public class Inspector {
     }
 
     /* Get the superclass and interfaces the declaringClass implements */
-    private void get_header(Class declaringClass) {
+    private void getHeader(Class declaringClass) {
         String text;
         Class superclass = declaringClass.getSuperclass();
         if (superclass == null) { text = "<No Superclass>"; }
@@ -48,6 +50,37 @@ public class Inspector {
             }
         } else {
             output.add("    <No Interfaces>");
+        }
+    }
+
+    /* Iterate over all methods that the declaringClass *declares* */
+    private void getMethods(Class declaringClass) {
+        output.add("Methods:");
+        for (Method m : declaringClass.getDeclaredMethods()) {
+            output.add("    " + m.getName());
+            output.add("        Exceptions:");
+
+            if (m.getExceptionTypes().length > 0) {
+                for (Class e : m.getExceptionTypes()) {
+                    output.add("            " + e.getName());
+                }
+            } else {
+                output.add("            <No Exceptions>");
+            }
+
+            output.add("        Parameter Types:");
+            if (m.getParameterTypes().length > 0) {
+                for (Class p : m.getParameterTypes()) {
+                    output.add("            " + p.getName());
+                }
+            } else {
+                output.add("            <No Parameters>");
+            }
+
+            output.add("        Return Type: " + m.getReturnType().getName());
+
+            int mod = m.getModifiers();
+            output.add("        Modifiers:" + Modifier.toString(mod));
         }
     }
 }
