@@ -17,6 +17,7 @@ public class Inspector {
         Class declaringClass = getDeclaringClass(obj);
         getHeader(declaringClass);
         getMethods(declaringClass);
+        getConstructors(declaringClass);
 
         if (!testing) {
             for (String s : output) { System.out.println(s); }
@@ -56,30 +57,57 @@ public class Inspector {
     /* Iterate over all methods that the declaringClass *declares* */
     private void getMethods(Class declaringClass) {
         addLine("Methods:");
-        for (Method m : declaringClass.getDeclaredMethods()) {
-            addLine(m.getName(), 1);
-            addLine("Exceptions:", 2);
+        Method[] methods = declaringClass.getDeclaredMethods();
+        if (methods.length > 0) {
+            for (Method m : methods) {
+                addLine(m.getName(), 1);
+                addLine("Exceptions:", 2);
 
-            if (m.getExceptionTypes().length > 0) {
-                for (Class e : m.getExceptionTypes()) {
-                    addLine(e.getName(), 3);
+                if (m.getExceptionTypes().length > 0) {
+                    for (Class e : m.getExceptionTypes()) {
+                        addLine(e.getName(), 3);
+                    }
+                } else {
+                    addLine("<No Exceptions>", 3);
                 }
-            } else {
-                addLine("<No Exceptions>", 3);
+
+                addLine("Parameter Types:", 2);
+                if (m.getParameterTypes().length > 0) {
+                    for (Class p : m.getParameterTypes()) {
+                        addLine(p.getName(), 3);
+                    }
+                } else {
+                    addLine("<No Parameters>", 3);
+                }
+
+                addLine("Return Type: " + m.getReturnType().getName(), 2);
+
+                int mod = m.getModifiers();
+                addLine("Modifiers: " + Modifier.toString(mod), 2);
             }
+        } else {
+            addLine("<No Methods>", 1);
+        }
+    }
+
+    /* Iterate over all methods that the declaringClass *declares* */
+    private void getConstructors(Class declaringClass) {
+        addLine("Constructors:");
+        Constructor[] constructors = declaringClass.getDeclaredConstructors();
+        for (int i = 0; i < constructors.length; i++) {
+            Constructor c = constructors[i];
+            addLine("Constructor " + Integer.toString(i + 1), 1);
 
             addLine("Parameter Types:", 2);
-            if (m.getParameterTypes().length > 0) {
-                for (Class p : m.getParameterTypes()) {
+            if (c.getParameterTypes().length > 0) {
+                for (Class p : c.getParameterTypes()) {
                     addLine(p.getName(), 3);
                 }
             } else {
                 addLine("<No Parameters>", 3);
             }
 
-            addLine("Return Type: " + m.getReturnType().getName(), 2);
-
-            int mod = m.getModifiers();
+            int mod = c.getModifiers();
             addLine("Modifiers: " + Modifier.toString(mod), 2);
         }
     }

@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import inspector.Inspector;
 import test_classes.*;
 
-public class TestMethod {
+public class TestConstructor {
     private Inspector i;
     @Before
     public void setup() {
@@ -20,10 +20,8 @@ public class TestMethod {
     public void Test() {
         DefaultClass c = new DefaultClass();
         ArrayList<String> o = i.inspect(c, false);
-        assertEquals(o.get(5), "    methodOne");
-        assertEquals(o.get(7), "            <No Exceptions>");
-        assertEquals(o.get(9), "            <No Parameters>");
-        assertEquals(o.get(10), "        Return Type: void");
-        assertEquals(o.get(11), "        Modifiers: public");
+        assertEquals(o.get(20), "    Constructor 1");
+        assertEquals(o.get(22), "            <No Parameters>");
+        assertEquals(o.get(23), "        Modifiers: public");
     }
 }
