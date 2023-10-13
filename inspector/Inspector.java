@@ -30,7 +30,7 @@ public class Inspector {
         String text;
         Class declaringClass = obj.getClass();
         text = declaringClass.getName();
-        output.add("Declaring Class: " + text);
+        addLine("Declaring Class: " + text);
         return declaringClass;
     }
 
@@ -40,47 +40,56 @@ public class Inspector {
         Class superclass = declaringClass.getSuperclass();
         if (superclass == null) { text = "<No Superclass>"; }
         else { text = superclass.getName(); }
-        output.add("Superclass: " + text);
+        addLine ("Superclass: " + text);
 
         Class[] interfaces = declaringClass.getInterfaces();
-        output.add("Interfaces:");
+        addLine("Interfaces:");
         if (interfaces.length > 0) {
             for (Class i : interfaces) {
-                output.add("    " + i.getName());
+                addLine(i.getName(), 1);
             }
         } else {
-            output.add("    <No Interfaces>");
+            addLine("<No Interfaces>", 1);
         }
     }
 
     /* Iterate over all methods that the declaringClass *declares* */
     private void getMethods(Class declaringClass) {
-        output.add("Methods:");
+        addLine("Methods:");
         for (Method m : declaringClass.getDeclaredMethods()) {
-            output.add("    " + m.getName());
-            output.add("        Exceptions:");
+            addLine(m.getName(), 1);
+            addLine("Exceptions:", 2);
 
             if (m.getExceptionTypes().length > 0) {
                 for (Class e : m.getExceptionTypes()) {
-                    output.add("            " + e.getName());
+                    addLine(e.getName(), 3);
                 }
             } else {
-                output.add("            <No Exceptions>");
+                addLine("<No Exceptions>", 3);
             }
 
-            output.add("        Parameter Types:");
+            addLine("Parameter Types:", 2);
             if (m.getParameterTypes().length > 0) {
                 for (Class p : m.getParameterTypes()) {
-                    output.add("            " + p.getName());
+                    addLine(p.getName(), 3);
                 }
             } else {
-                output.add("            <No Parameters>");
+                addLine("<No Parameters>", 3);
             }
 
-            output.add("        Return Type: " + m.getReturnType().getName());
+            addLine("Return Type: " + m.getReturnType().getName(), 2);
 
             int mod = m.getModifiers();
-            output.add("        Modifiers:" + Modifier.toString(mod));
+            addLine("Modifiers: " + Modifier.toString(mod), 2);
         }
+    }
+
+    /* Helper method for string formatting to make the output human-readable */
+    private void addLine(String s) { addLine(s, 0); }
+    private void addLine(String s, int tab) {
+        String o = "";
+        for (int i = 0; i < tab; i++) { o += "    "; }
+        o += s;
+        output.add(o);
     }
 }
