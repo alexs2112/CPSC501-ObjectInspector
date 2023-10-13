@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 import inspector.Inspector;
 import test_classes.*;
 
-public class TestDefault {
+public class TestHeader {
     private Inspector i;
     @Before
     public void setup() {
