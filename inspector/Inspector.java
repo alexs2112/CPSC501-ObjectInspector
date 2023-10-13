@@ -1,8 +1,6 @@
 package inspector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.lang.reflect.*;
 
 public class Inspector {
     private boolean testing;
@@ -15,11 +13,28 @@ public class Inspector {
         // Clear the output at the start of a new test
         output = new ArrayList<String>();
 
+        Class declaringClass = getDeclaringClass(obj);
+        get_header(declaringClass);
+
+        if (!testing) {
+            for (String s : output) { System.out.println(s); }
+        }
+
+        return output;
+    }
+
+    /* Get the declaring class of the object */
+    private Class getDeclaringClass(Object obj) {
         String text;
         Class declaringClass = obj.getClass();
         text = declaringClass.getName();
         output.add("Declaring Class: " + text);
+        return declaringClass;
+    }
 
+    /* Get the superclass and interfaces the declaringClass implements */
+    private void get_header(Class declaringClass) {
+        String text;
         Class superclass = declaringClass.getSuperclass();
         if (superclass == null) { text = "<No Superclass>"; }
         else { text = superclass.getName(); }
@@ -34,13 +49,5 @@ public class Inspector {
         } else {
             output.add("    <No Interfaces>");
         }
-
-        if (!testing) {
-            for (String s : output) {
-                System.out.println(s);
-            }
-        }
-
-        return output;
     }
 }
