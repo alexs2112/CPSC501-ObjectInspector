@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
 
-import inspector.Inspector;
+import inspector.*;
 import test_classes.*;
 
 public class TestConstructor {
@@ -15,13 +15,26 @@ public class TestConstructor {
         i = new Inspector(true);
     }
 
-    /* This tests can, and should, be cleaned up */
     @Test
-    public void Test() {
+    public void TestConstructors() {
         DefaultClass c = new DefaultClass();
-        ArrayList<String> o = i.inspect(c, false);
-        assertEquals(o.get(20), "    Constructor 1");
-        assertEquals(o.get(22), "            <No Parameters>");
-        assertEquals(o.get(23), "        Modifiers: public");
+        InspectorOutput o = i.inspect(c, false);
+        for (InspectorConstructor ic : o.constructors) {
+            if (ic.parameters == null) {
+                assertEquals(ic.modifiers, "public");
+            } else {
+                assertEquals(ic.parameters.length, 1);
+                assertEquals(ic.parameters[0], "int");
+                assertEquals(ic.modifiers, "private");
+            }
+        }
+    }
+
+    @Test
+    public void TestNoConstructors() {
+        BlankClass c = new BlankClass();
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.constructors.length, 1);
+        assertEquals(o.constructors[0].modifiers, "public");
     }
 }

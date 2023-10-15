@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import org.junit.Test;
 import org.junit.Before;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import inspector.Inspector;
+import inspector.*;
 import test_classes.*;
 
 public class TestMethod {
@@ -19,11 +20,19 @@ public class TestMethod {
     @Test
     public void Test() {
         DefaultClass c = new DefaultClass();
-        ArrayList<String> o = i.inspect(c, false);
-        assertEquals(o.get(5), "    methodOne");
-        assertEquals(o.get(7), "            <No Exceptions>");
-        assertEquals(o.get(9), "            <No Parameters>");
-        assertEquals(o.get(10), "        Return Type: void");
-        assertEquals(o.get(11), "        Modifiers: public");
+        InspectorOutput o = i.inspect(c, false);
+        for (InspectorMethod m : o.methods) {
+            if (m.name.equals("methodOne")) {
+                assertNull(m.exceptions);
+                assertNull(m.parameters);
+                assertEquals(m.returnType, "void");
+                assertEquals(m.modifiers, "public");
+            } else {
+                assertEquals(m.exceptions[0], "java.lang.RuntimeException");
+                assertEquals(m.parameters[0], "int");
+                assertEquals(m.returnType, "java.lang.String");
+                assertEquals(m.modifiers, "public");
+            }
+        }
     }
 }

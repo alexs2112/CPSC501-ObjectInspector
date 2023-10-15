@@ -1,123 +1,107 @@
 package inspector;
 
-import java.util.ArrayList;
 import java.lang.reflect.*;
 
 public class Inspector {
     private boolean testing;
-    private ArrayList<String> output;
 
     public Inspector() { /* Default Constructor */ }
     public Inspector(boolean testing) { this.testing = testing; }
 
-    public ArrayList<String> inspect(Object obj, boolean recursive) {
-        // Clear the output at the start of a new test
-        output = new ArrayList<String>();
+    public InspectorOutput inspect(Object obj, boolean recursive) {
+        InspectorOutput output = new InspectorOutput();
 
-        Class declaringClass = getDeclaringClass(obj);
-        getHeader(declaringClass);
-        getMethods(declaringClass);
-        getConstructors(declaringClass);
+        Class declaringClass = getDeclaringClass(obj, output);
+        getHeader(declaringClass, output);
+        getMethods(declaringClass, output);
+        getConstructors(declaringClass, output);
 
-        if (!testing) {
-            for (String s : output) { System.out.println(s); }
-        }
+        if (!testing) { output.print(); }
 
         return output;
     }
 
     /* Get the declaring class of the object */
-    private Class getDeclaringClass(Object obj) {
-        String text;
+    private Class getDeclaringClass(Object obj, InspectorOutput output) {
         Class declaringClass = obj.getClass();
-        text = declaringClass.getName();
-        addLine("Declaring Class: " + text);
+        output.declaringClass = declaringClass.getName();
         return declaringClass;
     }
 
     /* Get the superclass and interfaces the declaringClass implements */
-    private void getHeader(Class declaringClass) {
-        String text;
+    private void getHeader(Class declaringClass, InspectorOutput output) {
         Class superclass = declaringClass.getSuperclass();
-        if (superclass == null) { text = "<No Superclass>"; }
-        else { text = superclass.getName(); }
-        addLine ("Superclass: " + text);
+        if (superclass != null) { output.superclass = superclass.getName(); }
 
         Class[] interfaces = declaringClass.getInterfaces();
-        addLine("Interfaces:");
         if (interfaces.length > 0) {
-            for (Class i : interfaces) {
-                addLine(i.getName(), 1);
+            output.interfaces = new String[interfaces.length];
+            for (int i = 0; i < interfaces.length; i++) {
+                output.interfaces[i] = interfaces[i].getName();
             }
-        } else {
-            addLine("<No Interfaces>", 1);
         }
     }
 
     /* Iterate over all methods that the declaringClass *declares* */
-    private void getMethods(Class declaringClass) {
-        addLine("Methods:");
+    private void getMethods(Class declaringClass, InspectorOutput output) {
         Method[] methods = declaringClass.getDeclaredMethods();
-        if (methods.length > 0) {
-            for (Method m : methods) {
-                addLine(m.getName(), 1);
-                addLine("Exceptions:", 2);
+        if (methods.length == 0) { return; }
 
-                if (m.getExceptionTypes().length > 0) {
-                    for (Class e : m.getExceptionTypes()) {
-                        addLine(e.getName(), 3);
-                    }
-                } else {
-                    addLine("<No Exceptions>", 3);
+        output.methods = new InspectorMethod[methods.length];
+        for (int i = 0; i < methods.length; i++) {
+            Method m = methods[i];
+            InspectorMethod inspectorMethod = new InspectorMethod();
+            inspectorMethod.name = m.getName();
+
+            Class[] exceptionTypes = m.getExceptionTypes();
+            if (exceptionTypes.length > 0) {
+                String[] exceptions = new String[exceptionTypes.length];
+                for (int j = 0; j < exceptionTypes.length; j++) {
+                    exceptions[j] = exceptionTypes[j].getName();
                 }
-
-                addLine("Parameter Types:", 2);
-                if (m.getParameterTypes().length > 0) {
-                    for (Class p : m.getParameterTypes()) {
-                        addLine(p.getName(), 3);
-                    }
-                } else {
-                    addLine("<No Parameters>", 3);
-                }
-
-                addLine("Return Type: " + m.getReturnType().getName(), 2);
-
-                int mod = m.getModifiers();
-                addLine("Modifiers: " + Modifier.toString(mod), 2);
+                inspectorMethod.exceptions = exceptions;
             }
-        } else {
-            addLine("<No Methods>", 1);
+
+            Class[] parameterTypes = m.getParameterTypes();
+            if (parameterTypes.length > 0) {
+                String[] parameters = new String[parameterTypes.length];
+                for (int j = 0; j < parameterTypes.length; j++) {
+                    parameters[j] = parameterTypes[j].getName();
+                }
+                inspectorMethod.parameters = parameters;
+            }
+
+            inspectorMethod.returnType = m.getReturnType().getName();
+            int mod = m.getModifiers();
+            inspectorMethod.modifiers = Modifier.toString(mod);
+
+            output.methods[i] = inspectorMethod;
         }
     }
 
     /* Iterate over all methods that the declaringClass *declares* */
-    private void getConstructors(Class declaringClass) {
-        addLine("Constructors:");
+    private void getConstructors(Class declaringClass, InspectorOutput output) {
         Constructor[] constructors = declaringClass.getDeclaredConstructors();
+        if (constructors.length == 0) { return; }
+
+        output.constructors = new InspectorConstructor[constructors.length];
         for (int i = 0; i < constructors.length; i++) {
             Constructor c = constructors[i];
-            addLine("Constructor " + Integer.toString(i + 1), 1);
+            InspectorConstructor inspectorConstructor = new InspectorConstructor();
 
-            addLine("Parameter Types:", 2);
-            if (c.getParameterTypes().length > 0) {
-                for (Class p : c.getParameterTypes()) {
-                    addLine(p.getName(), 3);
+            Class[] parameterTypes = c.getParameterTypes();
+            if (parameterTypes.length > 0) {
+                String[] parameters = new String[parameterTypes.length];
+                for (int j = 0; j < parameterTypes.length; j++) {
+                    parameters[j] = parameterTypes[j].getName();
                 }
-            } else {
-                addLine("<No Parameters>", 3);
+                inspectorConstructor.parameters = parameters;
             }
 
             int mod = c.getModifiers();
-            addLine("Modifiers: " + Modifier.toString(mod), 2);
-        }
-    }
+            inspectorConstructor.modifiers = Modifier.toString(mod);
 
-    /* Helper method for string formatting to make the output human-readable */
-    private void addLine(String s) { addLine(s, 0); }
-    private void addLine(String s, int tab) {
-        String o = "";
-        for (int i = 0; i < tab; i++) { o += "    "; }
-        o += s;
-        output.add(o);
+            output.constructors[i] = inspectorConstructor;
+        }
     }
 }
