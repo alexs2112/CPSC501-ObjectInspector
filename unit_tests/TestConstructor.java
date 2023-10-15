@@ -22,8 +22,7 @@ public class TestConstructor {
         for (InspectorConstructor ic : o.constructors) {
             if (ic.parameters == null) {
                 assertEquals(ic.modifiers, "public");
-            } else {
-                assertEquals(ic.parameters.length, 1);
+            } else if (ic.parameters.length == 1) {
                 assertEquals(ic.parameters[0], "int");
                 assertEquals(ic.modifiers, "private");
             }

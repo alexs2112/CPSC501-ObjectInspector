@@ -1,6 +1,7 @@
 package inspector;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
 
 public class Inspector {
     private boolean testing;
@@ -15,6 +16,7 @@ public class Inspector {
         getHeader(declaringClass, output);
         getMethods(declaringClass, output);
         getConstructors(declaringClass, output);
+        getFields(declaringClass, obj, output);
 
         if (!testing) { output.print(); }
 
@@ -103,5 +105,76 @@ public class Inspector {
 
             output.constructors[i] = inspectorConstructor;
         }
+    }
+
+    /* Iterate over *all* fields of the object and print their values */
+    private void getFields(Class declaringClass, Object obj, InspectorOutput output) {
+        Field[] fs = findFields(declaringClass, false);
+        if (fs.length == 0) { return; }
+
+        ArrayList<InspectorField> temp = new ArrayList<InspectorField>();
+        for (int i = 0; i < fs.length; i++) {
+            Field f = fs[i];   
+            String mod = Modifier.toString(f.getModifiers());
+            String type = f.getType().getName();
+            String name = f.getName();
+            try {
+                temp.add(new InspectorField(mod, type, name, f.get(obj).toString()));
+            } catch (NullPointerException e) {
+                // I honestly don't know why f.get() throws an exception if the value is null
+                temp.add(new InspectorField(mod, type, name, "null"));
+            } catch (IllegalAccessException e) {
+                // Private variables are not set in temp
+                continue;
+            }
+        }
+
+        if (temp.size() == 0) { return; }
+        InspectorField[] ifs = new InspectorField[temp.size()];
+        for (int i = 0; i < temp.size(); i++) {
+            ifs[i] = temp.get(i);
+        }
+        output.fields = ifs;
+    }
+
+    /* Recursively get all fields of each superclass and return the ones that are public and protected */
+    private Field[] findFields(Class c, boolean isSuperclass) {
+        Field[] fs = c.getDeclaredFields();
+
+        // protected and private fields are, for some reason, throwing an 
+        // IllegalAccessException even when they should be accessible ???
+        // Make them accessible because they should already be
+        for (int i = 0; i < fs.length; i++) {
+            Field f = fs[i];
+            if (Modifier.isProtected(f.getModifiers())) {
+                f.setAccessible(true);
+            }
+            if (!isSuperclass && Modifier.isPrivate(f.getModifiers())) {
+                f.setAccessible(true);
+            }
+        }
+
+        if (c.getSuperclass() == null) { return fs; }
+
+        return concat(fs, findFields(c.getSuperclass(), true));
+    }
+
+    /* Apparently concatenating two arrays isn't just a default java function... */
+    private Field[] concat(Field[] a, Field[] b) {
+        int alen = a.length;
+        if (alen == 0) { return b; }
+        
+        int blen = b.length;
+        if (blen == 0) { return a; }
+
+        int len = alen + blen;
+        Field[] f = new Field[len];
+        for (int i = 0; i < alen; i++) {
+            f[i] = a[i];
+        }
+        for (int i = 0; i < blen; i++) {
+            f[i+alen] = b[i];
+        }
+        return f;
     }
 }

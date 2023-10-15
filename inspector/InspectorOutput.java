@@ -6,6 +6,7 @@ public class InspectorOutput {
     public String[] interfaces;
     public InspectorMethod[] methods;
     public InspectorConstructor[] constructors;
+    public InspectorField[] fields;
 
     public void println(String msg) { println(msg, 0); }
     public void println(String msg, int tab) {
@@ -18,6 +19,7 @@ public class InspectorOutput {
         printHeader();
         printMethods();
         printConstructors();
+        printFields();
     }
 
     private void printHeader() {
@@ -87,6 +89,17 @@ public class InspectorOutput {
             }
         } else {
             println("<No Constructors>");
+        }
+    }
+
+    private void printFields() {
+        if (fields != null) {
+            println("Fields:");
+            for (InspectorField f : fields) {
+                println(f.modifiers + " " + f.type + " " + f.name + ": " + f.value, 1);
+            }
+        } else {
+            println("<No Fields>");
         }
     }
 }
