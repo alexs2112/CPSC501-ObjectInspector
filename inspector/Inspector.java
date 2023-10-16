@@ -26,7 +26,7 @@ public class Inspector {
     /* Get the declaring class of the object */
     private Class getDeclaringClass(Object obj, InspectorOutput output) {
         Class declaringClass = obj.getClass();
-        output.declaringClass = declaringClass.getName();
+        output.declaringClass = getClassName(declaringClass);
         return declaringClass;
     }
 
@@ -68,12 +68,12 @@ public class Inspector {
             if (parameterTypes.length > 0) {
                 String[] parameters = new String[parameterTypes.length];
                 for (int j = 0; j < parameterTypes.length; j++) {
-                    parameters[j] = parameterTypes[j].getName();
+                    parameters[j] = getClassName(parameterTypes[j]);
                 }
                 inspectorMethod.parameters = parameters;
             }
 
-            inspectorMethod.returnType = m.getReturnType().getName();
+            inspectorMethod.returnType = getClassName(m.getReturnType());
             int mod = m.getModifiers();
             inspectorMethod.modifiers = Modifier.toString(mod);
 
@@ -95,7 +95,7 @@ public class Inspector {
             if (parameterTypes.length > 0) {
                 String[] parameters = new String[parameterTypes.length];
                 for (int j = 0; j < parameterTypes.length; j++) {
-                    parameters[j] = parameterTypes[j].getName();
+                    parameters[j] = getClassName(parameterTypes[j]);
                 }
                 inspectorConstructor.parameters = parameters;
             }
@@ -176,5 +176,18 @@ public class Inspector {
             f[i+alen] = b[i];
         }
         return f;
+    }
+
+    /* Get the classname of a class, parsing it if its an array */
+    private String getClassName(Class c) {
+        if (c.isArray()) {
+            Class e = c.getComponentType();
+            String name;
+            if (e.isArray()) name = getClassName(e);
+            else name = e.getName();
+            return "Array[" + name + "]";
+        } else {
+            return c.getName();
+        }
     }
 }
