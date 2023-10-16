@@ -129,19 +129,8 @@ public class Inspector {
             if (f.getType().isArray()) {
                 temp.add(parseArrayField(f, value));
             } else {
-                String mod = Modifier.toString(f.getModifiers());
-                String type = f.getType().getName();
-                String name = f.getName();
-                String valueString;
-                if (value == null) {
-                    valueString = "null";
-                } else {
-                    valueString = value.toString();
-                }
-
-                temp.add(new InspectorField(mod, type, name, valueString));
+                temp.add(parseNormalField(f, value));
             }
-            
         }
 
         if (temp.size() == 0) { return; }
@@ -191,6 +180,20 @@ public class Inspector {
             f[i+alen] = b[i];
         }
         return f;
+    }
+
+    private InspectorField parseNormalField(Field field, Object value) {
+        String mod = Modifier.toString(field.getModifiers());
+        String type = field.getType().getName();
+        String name = field.getName();
+        String valueString;
+        if (value == null) {
+            valueString = "null";
+        } else {
+            valueString = value.toString();
+        }
+
+        return new InspectorField(mod, type, name, valueString);
     }
 
     /* Get the array values of a given field */
