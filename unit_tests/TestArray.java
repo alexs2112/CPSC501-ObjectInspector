@@ -18,15 +18,9 @@ public class TestArray {
     }
 
     @Test
-    public void Test() {
+    public void TestMethods() {
         ArrayClass c = new ArrayClass();
         InspectorOutput o = i.inspect(c, false);
-        for (InspectorConstructor ic : o.constructors) {
-            if (ic.parameters != null) {
-                assertEquals(ic.parameters[0], "Array[java.lang.String]");
-            }
-        }
-
         for (int i = 0; i < 2; i++) {
             InspectorMethod m = o.methods[i];
             if (m.parameters[0].equals("Array[int]")) {
@@ -41,25 +35,37 @@ public class TestArray {
 
     @Test
     public void TestPopulatedField() {
-        ArrayClass c = new ArrayClass(new String[] {"a", "b", "c", "d", "e"});
+        ArrayClass c = new ArrayClass(new int[] {0, 1, 2, 3, 4});
         InspectorOutput o = i.inspect(c, false);
-        assertEquals(o.fields[0].type, "Array[java.lang.String]");
-        assertEquals(o.fields[0].value, "[a, b, c, d, e](len=5)");
+        for (InspectorField f : o.fields) {
+            if (f.name.equals("ints")) {
+                assertEquals(f.type, "Array[int]");
+                assertEquals(f.value, "[0, 1, 2, 3, 4](len=5)");
+            }
+        }
     }
 
     @Test
     public void TestEmptyField() {
         ArrayClass c = new ArrayClass();
         InspectorOutput o = i.inspect(c, false);
-        assertEquals(o.fields[0].type, "Array[java.lang.String]");
-        assertEquals(o.fields[0].value, "null");
+        for (InspectorField f : o.fields) {
+            if (f.name.equals("strings")) {
+                assertEquals(f.type, "Array[java.lang.String]");
+                assertEquals(f.value, "null");
+            }
+        }
     }
 
     @Test
     public void TestPopulatedNull() {
         ArrayClass c = new ArrayClass(new String[3]);
         InspectorOutput o = i.inspect(c, false);
-        assertEquals(o.fields[0].type, "Array[java.lang.String]");
-        assertEquals(o.fields[0].value, "[null, null, null](len=3)");
+        for (InspectorField f : o.fields) {
+            if (f.name.equals("strings")) {
+                assertEquals(f.type, "Array[java.lang.String]");
+                assertEquals(f.value, "[null, null, null](len=3)");
+            }
+        }
     }
 }

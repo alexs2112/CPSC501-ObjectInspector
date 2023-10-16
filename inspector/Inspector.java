@@ -182,15 +182,17 @@ public class Inspector {
         return f;
     }
 
+    /* Get the values of a given non-array field */
     private InspectorField parseNormalField(Field field, Object value) {
         String mod = Modifier.toString(field.getModifiers());
         String type = field.getType().getName();
         String name = field.getName();
+
         String valueString;
         if (value == null) {
             valueString = "null";
         } else {
-            valueString = value.toString();
+            valueString = getObjectName(field.getType(), value);
         }
 
         return new InspectorField(mod, type, name, valueString);
@@ -211,7 +213,7 @@ public class Inspector {
             for (int i = 0; i < length; i++) {
                 Object o = Array.get(value, i);
                 if (o == null) { valueString += "null"; }
-                else { valueString += o.toString(); }
+                else { valueString += getObjectName(c.getComponentType(), o); }
                 if (i == length - 1) {
                     valueString += "](len=" + Integer.toString(length) + ")";
                 } else {
@@ -220,8 +222,14 @@ public class Inspector {
             }
         }
 
-        // Include Length
         return new InspectorField(mod, type, name, valueString);
+    }
+
+    /* If a value of a field is a reference to an object, return the hashcode of that object */
+    private String getObjectName(Class type, Object value) {
+        if (type.isPrimitive()) { return value.toString(); }
+        
+        return value.getClass().getName().toString() + "@" + Integer.toString(value.hashCode());
     }
 
     /* Get the classname of a class, parsing it if its an array */

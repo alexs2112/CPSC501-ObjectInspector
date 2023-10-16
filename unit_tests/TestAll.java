@@ -5,5 +5,12 @@ import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
-@SuiteClasses({ TestHeader.class, TestMethod.class, TestConstructor.class, TestField.class, TestArray.class })
+@SuiteClasses({ 
+    TestHeader.class,
+    TestMethod.class,
+    TestConstructor.class,
+    TestField.class,
+    TestArray.class,
+    TestObjectHash.class
+})
 public class TestAll { }
