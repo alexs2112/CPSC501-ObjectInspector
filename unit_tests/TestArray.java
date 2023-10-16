@@ -38,4 +38,28 @@ public class TestArray {
             }
         }
     }
+
+    @Test
+    public void TestPopulatedField() {
+        ArrayClass c = new ArrayClass(new String[] {"a", "b", "c", "d", "e"});
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.fields[0].type, "Array[java.lang.String]");
+        assertEquals(o.fields[0].value, "[a, b, c, d, e](len=5)");
+    }
+
+    @Test
+    public void TestEmptyField() {
+        ArrayClass c = new ArrayClass();
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.fields[0].type, "Array[java.lang.String]");
+        assertEquals(o.fields[0].value, "null");
+    }
+
+    @Test
+    public void TestPopulatedNull() {
+        ArrayClass c = new ArrayClass(new String[3]);
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.fields[0].type, "Array[java.lang.String]");
+        assertEquals(o.fields[0].value, "[null, null, null](len=3)");
+    }
 }

@@ -114,19 +114,34 @@ public class Inspector {
 
         ArrayList<InspectorField> temp = new ArrayList<InspectorField>();
         for (int i = 0; i < fs.length; i++) {
-            Field f = fs[i];   
-            String mod = Modifier.toString(f.getModifiers());
-            String type = f.getType().getName();
-            String name = f.getName();
+            Field f = fs[i];
+            Object value;
             try {
-                temp.add(new InspectorField(mod, type, name, f.get(obj).toString()));
+                value = f.get(obj);
             } catch (NullPointerException e) {
                 // I honestly don't know why f.get() throws an exception if the value is null
-                temp.add(new InspectorField(mod, type, name, "null"));
+                value = null;
             } catch (IllegalAccessException e) {
                 // Private variables are not set in temp
                 continue;
             }
+
+            if (f.getType().isArray()) {
+                temp.add(parseArrayField(f, value));
+            } else {
+                String mod = Modifier.toString(f.getModifiers());
+                String type = f.getType().getName();
+                String name = f.getName();
+                String valueString;
+                if (value == null) {
+                    valueString = "null";
+                } else {
+                    valueString = value.toString();
+                }
+
+                temp.add(new InspectorField(mod, type, name, valueString));
+            }
+            
         }
 
         if (temp.size() == 0) { return; }
@@ -176,6 +191,34 @@ public class Inspector {
             f[i+alen] = b[i];
         }
         return f;
+    }
+
+    /* Get the array values of a given field */
+    private InspectorField parseArrayField(Field field, Object value) {
+        Class c = field.getType();
+        String mod = Modifier.toString(c.getModifiers());
+        String type = getClassName(c);
+        String name = field.getName();
+        String valueString;
+        if (value == null) {
+            valueString = "null";
+        } else {
+            int length = Array.getLength(value);
+            valueString = "[";
+            for (int i = 0; i < length; i++) {
+                Object o = Array.get(value, i);
+                if (o == null) { valueString += "null"; }
+                else { valueString += o.toString(); }
+                if (i == length - 1) {
+                    valueString += "](len=" + Integer.toString(length) + ")";
+                } else {
+                    valueString += ", ";
+                }
+            }
+        }
+
+        // Include Length
+        return new InspectorField(mod, type, name, valueString);
     }
 
     /* Get the classname of a class, parsing it if its an array */
