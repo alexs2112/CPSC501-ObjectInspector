@@ -106,4 +106,34 @@ public class TestArray {
             }
         }
     }
+
+    @Test
+    public void TestSingleArrayObject() {
+        int[] c = new int[] { 1, 2, 3, 4, 5 };
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.fields[0].name, "length");
+        assertEquals(o.fields[0].value, "5");
+        for (int i = 1; i < 6; i++) {
+            assertEquals(o.fields[i].name, "[" + Integer.toString(i - 1) +"]");
+            assertEquals(o.fields[i].value, Integer.toString(i));
+        }
+    }
+
+    @Test
+    public void TestDoubleArrayObject() {
+        int[][] c = new int[][] { 
+            new int[] {0, 1, 2},
+            new int[] {3, 4, 5},
+            new int[] {6, 7, 8}
+        };
+        InspectorOutput o = i.inspect(c, false);
+        assertEquals(o.fields[0].name, "length");
+        assertEquals(o.fields[0].value, "3");
+        assertEquals(o.fields[1].name, "[0]");
+        assertEquals(o.fields[1].value, "[0, 1, 2](len=3)");
+        assertEquals(o.fields[2].name, "[1]");
+        assertEquals(o.fields[2].value, "[3, 4, 5](len=3)");
+        assertEquals(o.fields[3].name, "[2]");
+        assertEquals(o.fields[3].value, "[6, 7, 8](len=3)");
+    }
 }

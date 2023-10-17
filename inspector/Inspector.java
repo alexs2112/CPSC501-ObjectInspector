@@ -17,6 +17,10 @@ public class Inspector {
         getMethods(declaringClass, output);
         getConstructors(declaringClass, output);
         getFields(declaringClass, obj, output);
+        
+        if (declaringClass.isArray()) {
+            getArrayFields(declaringClass, obj, output);
+        }
 
         if (!testing) { output.print(); }
 
@@ -240,6 +244,26 @@ public class Inspector {
         if (type.isPrimitive()) { return value.toString(); }
         
         return value.getClass().getName().toString() + "@" + Integer.toString(value.hashCode());
+    }
+
+    private void getArrayFields(Class declaringClass, Object obj, InspectorOutput output) {
+        int length = Array.getLength(obj);
+        InspectorField lengthField = new InspectorField(null, "int", "length", Integer.toString(length));
+        
+        output.fields = new InspectorField[length + 1];
+        output.fields[0] = lengthField;
+        
+        for (int i = 0; i < length; i++) {
+            String text;
+            Object o = Array.get(obj, i);
+            if (o == null) { text = "null"; }
+            else {
+                if (declaringClass.getComponentType().isArray()) { text = getArrayString(declaringClass.getComponentType().getComponentType(), o); }
+                else { text = getObjectName(declaringClass.getComponentType(), o); }
+            }
+            InspectorField valueField = new InspectorField(null, getClassName(declaringClass.getComponentType()), "[" + Integer.toString(i) + "]", text);
+            output.fields[i + 1] = valueField;
+        }
     }
 
     /* Get the classname of a class, parsing it if its an array */

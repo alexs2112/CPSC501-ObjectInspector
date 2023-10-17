@@ -98,7 +98,12 @@ public class InspectorOutput {
         if (fields != null) {
             println("Fields:");
             for (InspectorField f : fields) {
-                println(f.modifiers + " " + f.type + " " + f.name + " = " + f.value, 1);
+                String s = "";
+                if (f.modifiers != null) { s += f.modifiers + " "; }
+                if (f.type != null) { s += f.type + " "; }
+                if (f.name != null) { s += f.name + " "; }
+                if (f.value != null) { s += "= " + f.value; }
+                println(s, 1);
             }
         } else {
             println("<No Fields>");
