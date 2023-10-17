@@ -13,7 +13,7 @@ public class Inspector {
         InspectorOutput output = new InspectorOutput();
 
         Class declaringClass = getDeclaringClass(obj, output);
-        getHeader(declaringClass, output);
+        getHeader(declaringClass, obj, output);
         getMethods(declaringClass, output);
         getConstructors(declaringClass, output);
         getFields(declaringClass, obj, output);
@@ -31,7 +31,8 @@ public class Inspector {
     }
 
     /* Get the superclass and interfaces the declaringClass implements */
-    private void getHeader(Class declaringClass, InspectorOutput output) {
+    private void getHeader(Class declaringClass, Object obj, InspectorOutput output) {
+        output.objectHash = Integer.toString(obj.hashCode());
         Class superclass = declaringClass.getSuperclass();
         if (superclass != null) { output.superclass = superclass.getName(); }
 

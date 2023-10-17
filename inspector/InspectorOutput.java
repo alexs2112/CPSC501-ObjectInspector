@@ -2,6 +2,7 @@ package inspector;
 
 public class InspectorOutput {
     public String declaringClass;
+    public String objectHash;
     public String superclass;
     public String[] interfaces;
     public InspectorMethod[] methods;
@@ -23,6 +24,7 @@ public class InspectorOutput {
     }
 
     private void printHeader() {
+        println("Object Hash: " + objectHash);
         println("Declaring Class: " + declaringClass);
 
         if (superclass == null) {

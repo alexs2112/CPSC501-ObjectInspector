@@ -18,6 +18,14 @@ public class TestObjectHash {
     }
 
     @Test
+    public void TestHeader() {
+        FieldClass a = new FieldClass();
+        String hashCode = Integer.toString(a.hashCode());
+        InspectorOutput o = i.inspect(a, false);
+        assertEquals(o.objectHash, hashCode);
+    }
+
+    @Test
     public void TestSame() {
         FieldClass a = new FieldClass();
         HashClass c = new HashClass(a, a);
@@ -45,5 +53,30 @@ public class TestObjectHash {
         }
 
         assertFalse(o.fields[0].value.equals(o.fields[1].value));
+    }
+
+    @Test
+    public void TestAllHashes() {
+        FieldClass a = new FieldClass();
+        FieldClass b = new FieldClass();
+        HashClass c = new HashClass(a, b);
+        String aHash = Integer.toString(a.hashCode());
+        String bHash = Integer.toString(b.hashCode());
+        InspectorOutput aOut = i.inspect(a, false);
+        InspectorOutput bOut = i.inspect(b, false);
+        InspectorOutput cOut = i.inspect(c, false);
+
+        for (InspectorField f : cOut.fields) {
+            if (f.name.equals("A")) {
+                String code = f.value.split("@")[1];
+                assertEquals(aOut.objectHash, code);
+            } else if (f.name.equals("B")) {
+                String code = f.value.split("@")[1];
+                assertEquals(bOut.objectHash, code);
+            } else {
+                fail();
+            }
+        }
+
     }
 }
