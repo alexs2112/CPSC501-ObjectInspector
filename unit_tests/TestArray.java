@@ -21,14 +21,13 @@ public class TestArray {
     public void TestMethods() {
         ArrayClass c = new ArrayClass();
         InspectorOutput o = i.inspect(c, false);
-        for (int i = 0; i < 2; i++) {
-            InspectorMethod m = o.methods[i];
-            if (m.parameters[0].equals("Array[int]")) {
+        for (InspectorMethod m : o.methods) {
+            if (m.name.equals("TestMethod")) {
+                assertEquals(m.parameters[0], "Array[int]");
                 assertEquals(m.returnType, "Array[int]");
-            } else if (m.parameters[0].equals("Array[Array[boolean]]")) {
+            } else if (m.name.equals("TestMethod2")) {
+                assertEquals(m.parameters[0], "Array[Array[boolean]]");
                 assertEquals(m.returnType, "Array[Array[boolean]]");
-            } else {
-                fail();
             }
         }
     }
@@ -65,6 +64,45 @@ public class TestArray {
             if (f.name.equals("strings")) {
                 assertEquals(f.type, "Array[java.lang.String]");
                 assertEquals(f.value, "[null, null, null](len=3)");
+            }
+        }
+    }
+
+    @Test
+    public void TestDoubleArray() {
+        ArrayClass c = new ArrayClass();
+        c.doubleArray = new int[3][2];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                c.doubleArray[i][j] = i + j;
+            }
+        }
+        InspectorOutput o = i.inspect(c, false);
+        for (InspectorField f : o.fields) {
+            if (f.name.equals("doubleArray")) {
+                assertEquals(f.type, "Array[Array[int]]");
+                assertEquals(f.value, "[[0, 1](len=2), [1, 2](len=2), [2, 3](len=2)](len=3)");
+            }
+        }
+    }
+
+    @Test
+    public void TestTripleArray() {
+        ArrayClass c = new ArrayClass();
+        c.tripleArray = new int[3][2][2];
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                for (int k = 0; k < 2; k++) {
+                    c.tripleArray[i][j][k] = i + j + k;
+                }
+            }
+        }
+
+        InspectorOutput o = i.inspect(c, false);
+        for (InspectorField f : o.fields) {
+            if (f.name.equals("tripleArray")) {
+                assertEquals(f.type, "Array[Array[Array[int]]]");
+                assertEquals(f.value, "[[[0, 1](len=2), [1, 2](len=2)](len=2), [[1, 2](len=2), [2, 3](len=2)](len=2), [[2, 3](len=2), [3, 4](len=2)](len=2)](len=3)");
             }
         }
     }

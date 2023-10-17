@@ -208,21 +208,30 @@ public class Inspector {
         if (value == null) {
             valueString = "null";
         } else {
-            int length = Array.getLength(value);
-            valueString = "[";
-            for (int i = 0; i < length; i++) {
-                Object o = Array.get(value, i);
-                if (o == null) { valueString += "null"; }
-                else { valueString += getObjectName(c.getComponentType(), o); }
-                if (i == length - 1) {
-                    valueString += "](len=" + Integer.toString(length) + ")";
-                } else {
-                    valueString += ", ";
-                }
-            }
+            valueString = getArrayString(c.getComponentType(), value);
         }
 
         return new InspectorField(mod, type, name, valueString);
+    }
+
+    private String getArrayString(Class componentType, Object array) {
+        int length = Array.getLength(array);
+        String out = "[";
+        for (int i = 0; i < length; i++) {
+            Object o = Array.get(array, i);
+            if (o == null) { out += "null"; }
+            else {
+                if (componentType.isArray()) { out += getArrayString(componentType.getComponentType(), o); }
+                else { out += getObjectName(componentType, o); }
+            }
+
+            if (i == length - 1) {
+                out += "](len=" + Integer.toString(length) + ")";
+            } else {
+                out += ", ";
+            }
+        }
+        return out;
     }
 
     /* If a value of a field is a reference to an object, return the hashcode of that object */

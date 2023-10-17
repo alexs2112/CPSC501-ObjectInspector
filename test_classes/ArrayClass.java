@@ -10,4 +10,7 @@ public class ArrayClass {
 
     public int[] ints;
     public String[] strings;
+
+    public int[][] doubleArray;
+    public int[][][] tripleArray;
 }
