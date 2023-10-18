@@ -19,7 +19,7 @@ public class TestObjectHash {
 
     @Test
     public void TestHeader() {
-        FieldClass a = new FieldClass();
+        BlankClass a = new BlankClass();
         String hashCode = Integer.toString(a.hashCode());
         InspectorOutput o = i.inspectOne(a, false);
         assertEquals(o.objectHash, hashCode);
@@ -27,26 +27,26 @@ public class TestObjectHash {
 
     @Test
     public void TestSame() {
-        FieldClass a = new FieldClass();
+        BlankClass a = new BlankClass();
         HashClass c = new HashClass(a, a);
         InspectorOutput o = i.inspectOne(c, false);
 
-        assertEquals(o.fields[0].value, "test_classes.FieldClass@" + Integer.toString(a.hashCode()));
+        assertEquals(o.fields[0].value, "test_classes.BlankClass@" + Integer.toString(a.hashCode()));
         assertEquals(o.fields[0].value, o.fields[1].value);
     }
 
     @Test
     public void TestDifferent() {
-        FieldClass a = new FieldClass();
-        FieldClass b = new FieldClass();
+        BlankClass a = new BlankClass();
+        BlankClass b = new BlankClass();
         HashClass c = new HashClass(a, b);
         InspectorOutput o = i.inspectOne(c, false);
 
         for (int i = 0; i < 2; i++) {
-            if (o.fields[i].value.equals("test_classes.FieldClass@" + Integer.toString(a.hashCode()))) {
-                assertEquals(o.fields[(i + 1) % 2].value, "test_classes.FieldClass@" + Integer.toString(b.hashCode()));
-            } else if (o.fields[i].value.equals("test_classes.FieldClass@" + Integer.toString(b.hashCode()))) {
-                assertEquals(o.fields[(i + 1) % 2].value, "test_classes.FieldClass@" + Integer.toString(a.hashCode()));
+            if (o.fields[i].value.equals("test_classes.BlankClass@" + Integer.toString(a.hashCode()))) {
+                assertEquals(o.fields[(i + 1) % 2].value, "test_classes.BlankClass@" + Integer.toString(b.hashCode()));
+            } else if (o.fields[i].value.equals("test_classes.BlankClass@" + Integer.toString(b.hashCode()))) {
+                assertEquals(o.fields[(i + 1) % 2].value, "test_classes.BlankClass@" + Integer.toString(a.hashCode()));
             } else {
                 fail();
             }
@@ -57,8 +57,8 @@ public class TestObjectHash {
 
     @Test
     public void TestAllHashes() {
-        FieldClass a = new FieldClass();
-        FieldClass b = new FieldClass();
+        BlankClass a = new BlankClass();
+        BlankClass b = new BlankClass();
         HashClass c = new HashClass(a, b);
         String aHash = Integer.toString(a.hashCode());
         String bHash = Integer.toString(b.hashCode());

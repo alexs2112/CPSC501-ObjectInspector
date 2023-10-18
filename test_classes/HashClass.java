@@ -1,10 +1,10 @@
 package test_classes;
 
 public class HashClass {
-    public HashClass(FieldClass a, FieldClass b) {
+    public HashClass(BlankClass a, BlankClass b) {
         this.A = a;
         this.B = b;
     }
-    public FieldClass A;
-    public FieldClass B;
+    public BlankClass A;
+    public BlankClass B;
 }
