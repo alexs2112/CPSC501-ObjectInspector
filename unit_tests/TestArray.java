@@ -20,7 +20,7 @@ public class TestArray {
     @Test
     public void TestMethods() {
         ArrayClass c = new ArrayClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorMethod m : o.methods) {
             if (m.name.equals("TestMethod")) {
                 assertEquals(m.parameters[0], "Array[int]");
@@ -35,7 +35,7 @@ public class TestArray {
     @Test
     public void TestPopulatedField() {
         ArrayClass c = new ArrayClass(new int[] {0, 1, 2, 3, 4});
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorField f : o.fields) {
             if (f.name.equals("ints")) {
                 assertEquals(f.type, "Array[int]");
@@ -47,7 +47,7 @@ public class TestArray {
     @Test
     public void TestEmptyField() {
         ArrayClass c = new ArrayClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorField f : o.fields) {
             if (f.name.equals("strings")) {
                 assertEquals(f.type, "Array[java.lang.String]");
@@ -59,7 +59,7 @@ public class TestArray {
     @Test
     public void TestPopulatedNull() {
         ArrayClass c = new ArrayClass(new String[3]);
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorField f : o.fields) {
             if (f.name.equals("strings")) {
                 assertEquals(f.type, "Array[java.lang.String]");
@@ -77,7 +77,7 @@ public class TestArray {
                 c.doubleArray[i][j] = i + j;
             }
         }
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorField f : o.fields) {
             if (f.name.equals("doubleArray")) {
                 assertEquals(f.type, "Array[Array[int]]");
@@ -98,7 +98,7 @@ public class TestArray {
             }
         }
 
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorField f : o.fields) {
             if (f.name.equals("tripleArray")) {
                 assertEquals(f.type, "Array[Array[Array[int]]]");
@@ -110,7 +110,7 @@ public class TestArray {
     @Test
     public void TestSingleArrayObject() {
         int[] c = new int[] { 1, 2, 3, 4, 5 };
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertEquals(o.fields[0].name, "length");
         assertEquals(o.fields[0].value, "5");
         for (int i = 1; i < 6; i++) {
@@ -126,7 +126,7 @@ public class TestArray {
             new int[] {3, 4, 5},
             new int[] {6, 7, 8}
         };
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertEquals(o.fields[0].name, "length");
         assertEquals(o.fields[0].value, "3");
         assertEquals(o.fields[1].name, "[0]");

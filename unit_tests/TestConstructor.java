@@ -18,7 +18,7 @@ public class TestConstructor {
     @Test
     public void TestConstructors() {
         DefaultClass c = new DefaultClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorConstructor ic : o.constructors) {
             if (ic.parameters == null) {
                 assertEquals(ic.modifiers, "public");
@@ -32,7 +32,7 @@ public class TestConstructor {
     @Test
     public void TestNoConstructors() {
         BlankClass c = new BlankClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertEquals(o.constructors.length, 1);
         assertEquals(o.constructors[0].modifiers, "public");
     }

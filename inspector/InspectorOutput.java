@@ -21,10 +21,13 @@ public class InspectorOutput {
         printMethods();
         printConstructors();
         printFields();
+        System.out.println();
     }
 
     private void printHeader() {
-        println("Object Hash: " + objectHash);
+        if (objectHash != null) {
+            println("Object Hash: " + objectHash);
+        }
         println("Declaring Class: " + declaringClass);
 
         if (superclass == null) {

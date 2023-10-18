@@ -5,11 +5,61 @@ import java.util.ArrayList;
 
 public class Inspector {
     private boolean testing;
+    private boolean recursive;
+    private ArrayList<InspectorOutput> outputs;
+    private ArrayList<Object> objectQueue;
+    private ArrayList<Class> classQueue;
 
     public Inspector() { /* Default Constructor */ }
     public Inspector(boolean testing) { this.testing = testing; }
 
-    public InspectorOutput inspect(Object obj, boolean recursive) {
+    private void initializeLists() {
+        outputs = new ArrayList<InspectorOutput>();
+        objectQueue = new ArrayList<Object>();
+        classQueue = new ArrayList<Class>();
+    }
+
+    public InspectorOutput[] inspect(Object obj, boolean recursive) {
+        this.recursive = recursive;
+        initializeLists();
+
+        addObject(obj, true);
+
+        while (!objectQueue.isEmpty()) {
+            // Pop the first object from the object queue and inspect it
+            Object o = objectQueue.get(0);
+            objectQueue.remove(0);
+            outputs.add(inspectObject(o));
+        }
+        while (!classQueue.isEmpty()) {
+            // Pop the first class from the class queue and inspect it
+            Class c = classQueue.get(0);
+            classQueue.remove(0);
+            outputs.add(inspectClass(c));
+        }
+
+        if (!testing) {
+            System.out.println("****************************************************");
+            for (InspectorOutput o : outputs) {
+                o.print();
+            }
+            System.out.println("****************************************************");
+        }
+
+        InspectorOutput[] output = new InspectorOutput[outputs.size()];
+        for (int i = 0; i < outputs.size(); i++) {
+            output[i] = outputs.get(i);
+        }
+        return output;
+    }
+
+    /* Return only the first object of inspect, ie the object provided in the params */
+    public InspectorOutput inspectOne(Object obj, boolean recursive) {
+        return inspect(obj, recursive)[0];
+    }
+
+    /* Inspect a given object, returning the inspector output */
+    private InspectorOutput inspectObject(Object obj) {
         InspectorOutput output = new InspectorOutput();
 
         Class declaringClass = getDeclaringClass(obj, output);
@@ -21,8 +71,28 @@ public class Inspector {
         if (declaringClass.isArray()) {
             getArrayFields(declaringClass, obj, output);
         }
+        return output;
+    }
 
-        if (!testing) { output.print(); }
+    /* Inspect a given class by instantiating the object and inspecting it */
+    private InspectorOutput inspectClass(Class c) {
+        InspectorOutput output = new InspectorOutput();
+
+        output.declaringClass = getClassName(c);
+        getHeader(c, output);
+        getMethods(c, output);
+        getConstructors(c, output);
+
+        // If setting the temp instance fails, leave it as null (its an interface, don't need to handle the exceptions)
+        Object tempInstance = null;
+        try {
+            tempInstance = Class.forName(c.getName()).newInstance();
+        } catch(ClassNotFoundException e) {
+        } catch(InstantiationException e) {
+        } catch(IllegalAccessException e) {
+        }
+
+        getFields(c, tempInstance, output);
 
         return output;
     }
@@ -35,16 +105,21 @@ public class Inspector {
     }
 
     /* Get the superclass and interfaces the declaringClass implements */
+    private void getHeader(Class declaringClass, InspectorOutput output) { getHeader(declaringClass, null, output); }
     private void getHeader(Class declaringClass, Object obj, InspectorOutput output) {
-        output.objectHash = Integer.toString(obj.hashCode());
+        if (obj != null) { output.objectHash = Integer.toString(obj.hashCode()); }
         Class superclass = declaringClass.getSuperclass();
-        if (superclass != null) { output.superclass = superclass.getName(); }
+        if (superclass != null) {
+            output.superclass = superclass.getName();
+            addClass(superclass);
+        }
 
         Class[] interfaces = declaringClass.getInterfaces();
         if (interfaces.length > 0) {
             output.interfaces = new String[interfaces.length];
             for (int i = 0; i < interfaces.length; i++) {
                 output.interfaces[i] = interfaces[i].getName();
+                addClass(interfaces[i]);
             }
         }
     }
@@ -277,5 +352,26 @@ public class Inspector {
         } else {
             return c.getName();
         }
+    }
+
+    /* Add an object to inspect to the object stack if valid */
+    private void addObject(Object obj) { addObject(obj, false); }
+    private void addObject(Object obj, boolean force) {
+        if (force) { objectQueue.add(obj); return; }
+        if (!recursive) { return; }
+        for (InspectorOutput o : outputs) {
+            if (o.objectHash.equals(Integer.toString(obj.hashCode()))) { return; }
+        }
+        objectQueue.add(obj);
+    }
+
+    /* Add a class to inspect to the class stack if valid */
+    private void addClass(Class c) {
+        for (InspectorOutput o : outputs) {
+            // Classes have a null object hash
+            if (o.objectHash != null) { continue; }
+            if (o.declaringClass.equals(c.getName())) { return; }
+        }
+        classQueue.add(c);
     }
 }

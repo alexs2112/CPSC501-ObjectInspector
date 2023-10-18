@@ -21,7 +21,7 @@ public class TestObjectHash {
     public void TestHeader() {
         FieldClass a = new FieldClass();
         String hashCode = Integer.toString(a.hashCode());
-        InspectorOutput o = i.inspect(a, false);
+        InspectorOutput o = i.inspectOne(a, false);
         assertEquals(o.objectHash, hashCode);
     }
 
@@ -29,7 +29,7 @@ public class TestObjectHash {
     public void TestSame() {
         FieldClass a = new FieldClass();
         HashClass c = new HashClass(a, a);
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
 
         assertEquals(o.fields[0].value, "test_classes.FieldClass@" + Integer.toString(a.hashCode()));
         assertEquals(o.fields[0].value, o.fields[1].value);
@@ -40,7 +40,7 @@ public class TestObjectHash {
         FieldClass a = new FieldClass();
         FieldClass b = new FieldClass();
         HashClass c = new HashClass(a, b);
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
 
         for (int i = 0; i < 2; i++) {
             if (o.fields[i].value.equals("test_classes.FieldClass@" + Integer.toString(a.hashCode()))) {
@@ -62,9 +62,9 @@ public class TestObjectHash {
         HashClass c = new HashClass(a, b);
         String aHash = Integer.toString(a.hashCode());
         String bHash = Integer.toString(b.hashCode());
-        InspectorOutput aOut = i.inspect(a, false);
-        InspectorOutput bOut = i.inspect(b, false);
-        InspectorOutput cOut = i.inspect(c, false);
+        InspectorOutput aOut = i.inspectOne(a, false);
+        InspectorOutput bOut = i.inspectOne(b, false);
+        InspectorOutput cOut = i.inspectOne(c, false);
 
         for (InspectorField f : cOut.fields) {
             if (f.name.equals("A")) {

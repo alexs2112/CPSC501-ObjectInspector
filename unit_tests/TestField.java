@@ -20,7 +20,7 @@ public class TestField {
     @Test
     public void Test() {
         DefaultClass c = new DefaultClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertEquals(o.fields[0].name, "privateInt");
         assertEquals(o.fields[0].value, "0");
         assertEquals(o.fields[1].name, "protectedInt");
@@ -37,16 +37,24 @@ public class TestField {
     @Test
     public void TestBlank() {
         BlankClass c = new BlankClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertNull(o.fields);
     }
 
     @Test
     public void TestChangeValues() {
         DefaultClass c = new DefaultClass(1, 2, 3);
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         assertEquals(o.fields[0].value, "1");
         assertEquals(o.fields[1].value, "2");
         assertEquals(o.fields[2].value, "3");
+    }
+
+    @Test
+    public void TestSuperclassValues() {
+        DefaultClass c = new DefaultClass();
+        InspectorOutput o = i.inspectOne(c, false);
+        assertEquals(o.fields[3].value, "4");
+        assertEquals(o.fields[4].value, "5");
     }
 }

@@ -11,6 +11,7 @@ import org.junit.runners.Suite.SuiteClasses;
     TestConstructor.class,
     TestField.class,
     TestArray.class,
-    TestObjectHash.class
+    TestObjectHash.class,
+    TestRecursion.class
 })
 public class TestAll { }

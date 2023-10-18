@@ -20,7 +20,7 @@ public class TestMethod {
     @Test
     public void Test() {
         DefaultClass c = new DefaultClass();
-        InspectorOutput o = i.inspect(c, false);
+        InspectorOutput o = i.inspectOne(c, false);
         for (InspectorMethod m : o.methods) {
             if (m.name.equals("methodOne")) {
                 assertNull(m.exceptions);
