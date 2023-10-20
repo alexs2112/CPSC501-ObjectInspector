@@ -25,10 +25,11 @@ public class InspectorOutput {
     }
 
     private void printHeader() {
+        String name = "Declaring Class: " + declaringClass;
         if (objectHash != null) {
-            println("Object Hash: " + objectHash);
+            name += "@" + objectHash;
         }
-        println("Declaring Class: " + declaringClass);
+        println(name);
 
         if (superclass == null) {
             println("<No Superclass>");

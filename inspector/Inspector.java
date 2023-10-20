@@ -9,6 +9,17 @@ public class Inspector {
     private ArrayList<InspectorOutput> outputs;
     private ArrayList<Object> objectQueue;
     private ArrayList<Class> classQueue;
+    private static final Class[] wrapperClasses = new Class[] {
+        Boolean.class,
+        Character.class,
+        Byte.class,
+        Short.class,
+        Integer.class,
+        Long.class,
+        Float.class,
+        Double.class,
+        Void.class
+    };
 
     public Inspector() { /* Default Constructor */ }
     public Inspector(boolean testing) { this.testing = testing; }
@@ -25,25 +36,27 @@ public class Inspector {
 
         addObject(obj, true);
 
-        while (!objectQueue.isEmpty()) {
-            // Pop the first object from the object queue and inspect it
-            Object o = objectQueue.get(0);
-            objectQueue.remove(0);
-            outputs.add(inspectObject(o));
-        }
-        while (!classQueue.isEmpty()) {
-            // Pop the first class from the class queue and inspect it
-            Class c = classQueue.get(0);
-            classQueue.remove(0);
-            outputs.add(inspectClass(c));
+        while (!objectQueue.isEmpty() || !classQueue.isEmpty()) {
+            while (!objectQueue.isEmpty()) {
+                // Pop the first object from the object queue and inspect it
+                Object o = objectQueue.get(0);
+                objectQueue.remove(0);
+                outputs.add(inspectObject(o));
+            }
+            while (!classQueue.isEmpty()) {
+                // Pop the first class from the class queue and inspect it
+                Class c = classQueue.get(0);
+                classQueue.remove(0);
+                outputs.add(inspectClass(c));
+            }
         }
 
         if (!testing) {
             System.out.println("****************************************************");
             for (InspectorOutput o : outputs) {
                 o.print();
+                System.out.println("****************************************************");
             }
-            System.out.println("****************************************************");
         }
 
         InspectorOutput[] output = new InspectorOutput[outputs.size()];
@@ -273,6 +286,7 @@ public class Inspector {
             valueString = "null";
         } else {
             valueString = getObjectName(field.getType(), value);
+            addObject(value);
         }
 
         return new InspectorField(mod, type, name, valueString);
@@ -294,6 +308,7 @@ public class Inspector {
         return new InspectorField(mod, type, name, valueString);
     }
 
+    /* Format an array as a string to pass to output */
     private String getArrayString(Class componentType, Object array) {
         int length = Array.getLength(array);
         String out = "[";
@@ -303,24 +318,25 @@ public class Inspector {
             else {
                 if (componentType.isArray()) { out += getArrayString(componentType.getComponentType(), o); }
                 else { out += getObjectName(componentType, o); }
-            }
 
-            if (i == length - 1) {
-                out += "](len=" + Integer.toString(length) + ")";
-            } else {
+                addObject(o);
+            }
+            if (i < length - 1) {
                 out += ", ";
             }
         }
+        out += "](len=" + Integer.toString(length) + ")";
         return out;
     }
 
     /* If a value of a field is a reference to an object, return the hashcode of that object */
     private String getObjectName(Class type, Object value) {
         if (type.isPrimitive()) { return value.toString(); }
-        
+
         return value.getClass().getName().toString() + "@" + Integer.toString(value.hashCode());
     }
 
+    /* If the object given is an array, find its length and the values stored in it */
     private void getArrayFields(Class declaringClass, Object obj, InspectorOutput output) {
         int length = Array.getLength(obj);
         InspectorField lengthField = new InspectorField(null, "int", "length", Integer.toString(length));
@@ -335,6 +351,7 @@ public class Inspector {
             else {
                 if (declaringClass.getComponentType().isArray()) { text = getArrayString(declaringClass.getComponentType().getComponentType(), o); }
                 else { text = getObjectName(declaringClass.getComponentType(), o); }
+                addObject(o);
             }
             InspectorField valueField = new InspectorField(null, getClassName(declaringClass.getComponentType()), "[" + Integer.toString(i) + "]", text);
             output.fields[i + 1] = valueField;
@@ -357,10 +374,20 @@ public class Inspector {
     /* Add an object to inspect to the object stack if valid */
     private void addObject(Object obj) { addObject(obj, false); }
     private void addObject(Object obj, boolean force) {
+        if (obj == null) { return; }
         if (force) { objectQueue.add(obj); return; }
         if (!recursive) { return; }
+        if (obj.getClass().isPrimitive()) { return; }
+        if (obj.getClass().isArray()) { return; }
+        if (isPrimitive(obj)) { return; }
         for (InspectorOutput o : outputs) {
+            if (o.objectHash == null) {
+                continue;
+            }
             if (o.objectHash.equals(Integer.toString(obj.hashCode()))) { return; }
+        }
+        for (Object o : objectQueue) {
+            if (o.equals(obj)) { return; }
         }
         objectQueue.add(obj);
     }
@@ -372,6 +399,17 @@ public class Inspector {
             if (o.objectHash != null) { continue; }
             if (o.declaringClass.equals(c.getName())) { return; }
         }
+        for (Class c2 : classQueue) {
+            if (c.equals(c2)) { return; }
+        }
         classQueue.add(c);
+    }
+
+    /* Check if an object is a wrapper object (eg. Integer instead of int) */
+    private boolean isPrimitive(Object o) {
+        for (Class c : wrapperClasses) {
+            if (o.getClass() == c) { return true; }
+        }
+        return false;
     }
 }
